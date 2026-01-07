@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Online</title>
+    <style>
+        :root {
+            /* 核心配色：暗夜蓝 + 极光绿 + 科技蓝 */
+            --bg-color: #020617;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --success: #4ade80;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* 深邃背景：叠加两层微弱的渐变光，营造空间感 */
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(74, 222, 128, 0.08) 0%, transparent 25%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .wrapper {
+            text-align: center;
+            z-index: 10;
+            /* 简单的上浮淡入动画 */
+            animation: floatUp 1s ease-out;
+        }
+
+        /* 状态指示器 */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            /* 去掉背景色，只保留微弱的边框 glow */
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.1);
+            color: var(--success);
+            padding: 0.5rem 1.2rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            background: rgba(0,0,0,0.2); /* 极轻微的底色衬托文字 */
+            backdrop-filter: blur(4px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            margin-right: 0.8rem;
+            box-shadow: 0 0 10px var(--success);
+            position: relative;
+        }
+
+        /* 呼吸动画 */
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 1px solid var(--success);
+            opacity: 0;
+            animation: ripple 2s infinite;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -1px;
+            /* 文字渐变，更有质感 */
+            background: linear-gradient(to bottom right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        /* 数据栏：横向排列 */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 3rem; /* 间距拉大 */
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* 只有顶部一条极细的线 */
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .stats-row { gap: 1.5rem; }
+            .stat-value { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <!-- 状态胶囊 -->
+        <div class="status-pill">
+            <div class="status-dot"></div>
+            SYSTEM OPERATIONAL
+        </div>
+
+        <!-- 标题 -->
+        <h1>Welcome Back.</h1>
+        <div class="subtitle">Nginx service is running smoothly.</div>
+
+        <!-- 底部数据栏 (横向布局) -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-label">Server</span>
+                <span class="stat-value">NGINX</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Connection</span>
+                <span class="stat-value">SECURE</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Local Time</span>
+                <span class="stat-value" id="clock">--:--:--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            // 使用更符合代码风格的时间格式
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            document.getElementById('clock').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
