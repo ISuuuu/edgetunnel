@@ -26,12 +26,21 @@
 3.  **初始化/关联项目**:
     如果你是第一次部署，可能需要初始化或在控制台创建一个 Pages 项目。
 
-4.  **执行部署**:
+4. **执行部署**:
+
     在项目根目录下运行：
+
     ```bash
+
     edgeone pages deploy
+
     ```
-    CLI 会自动识别 `edgeone.json` 配置，将 `edge-functions` 目录下的函数（已链接到 `_worker.js`）部署到云端。
+
+    CLI 会自动识别 `edgeone.json` 配置。
+
+    **注意**: 我们已配置了 `edge-functions/[[path]].js` 和 `edge-functions/index.js` 来确保所有路径（包括 `/admin` 和 `/`）都能正确路由到处理函数。
+
+
 
 5.  **配置环境变量**:
     部署完成后，别忘了在 EdgeOne 控制台的 Pages 项目设置中配置 `UUID`, `PROXYIP` 等环境变量，并绑定 `KV` 存储。
