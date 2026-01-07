@@ -1,4 +1,5 @@
-﻿import { connect } from "cloudflare:sockets";
+﻿// import { connect } from "cloudflare:sockets";
+let connect = globalThis.connect; // EdgeOne/Global fallback
 let config_JSON, 反代IP = '', 启用SOCKS5反代 = null, 启用SOCKS5全局反代 = false, 我的SOCKS5账号 = '', parsedSocks5Address = {};
 let 缓存反代IP, 缓存反代解析数组, 缓存反代数组索引 = 0, 启用反代兜底 = true;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -6,6 +7,24 @@ const Pages静态页面 = 'https://edt-pages.github.io';
 ///////////////////////////////////////////////////////主程序入口///////////////////////////////////////////////
 export default {
     async fetch(request, env, ctx) {
+        // EdgeOne compatibility check
+        if (request.headers.get('Upgrade') === 'websocket' && (typeof WebSocketPair === 'undefined' || typeof connect === 'undefined')) {
+            return new Response('The current environment does not support raw TCP sockets or WebSocketPair (required for proxying). EdgeOne may lack these APIs.', { status: 501 });
+        }
+
+        // EdgeOne request.cf polyfill
+        if (!request.cf) {
+        // EdgeOne request.cf polyfill
+        if (!request.cf) {
+            request.cf = {
+                colo: request.headers.get('eo-region') || 'UNK',
+                asn: request.headers.get('eo-client-asn') || '0',
+                country: request.headers.get('eo-geoip-country-code') || 'XX',
+                city: request.headers.get('eo-geoip-city') || 'Unknown',
+                asOrganization: request.headers.get('eo-client-as-name') || 'Unknown',
+                edgeRequestKeepAliveStatus: 1
+            };
+        }
         const url = new URL(request.url);
         const UA = request.headers.get('User-Agent') || 'null';
         const upgradeHeader = request.headers.get('Upgrade');

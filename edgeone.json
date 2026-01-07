@@ -1,0 +1,10 @@
+{
+  "pages": {
+    "framework": "static"
+  },
+  "functions": {
+    "include": [
+      "edge-functions/**/*"
+    ]
+  }
+}
